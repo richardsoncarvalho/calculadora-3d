@@ -3,11 +3,66 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Calculadora 3D | Precificação</title>
+    <title>
+      Calculadora de Precificação 3D | Simulador de Custo de Impressão 3D
+    </title>
     <meta
       name="description"
-      content="Calculadora de precificação para impressão 3D com material, energia, mão de obra, depreciação e margem de lucro."
+      content="Calcule o preço de impressão 3D com material, energia, mão de obra, depreciação, taxa de falha e margem de lucro. Simulador rápido para orçamento profissional."
     />
+    <meta
+      name="keywords"
+      content="calculadora 3D, precificação impressão 3D, orçamento impressão 3D, custo impressão 3D, simulador impressão 3D, depreciação impressora 3D"
+    />
+    <meta name="author" content="Calculadora 3D" />
+    <meta
+      name="robots"
+      content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"
+    />
+    <meta name="theme-color" content="#020617" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="pt_BR" />
+    <meta property="og:site_name" content="Calculadora de Precificação 3D" />
+    <meta
+      property="og:title"
+      content="Calculadora de Precificação 3D | Simulador de Custo de Impressão 3D"
+    />
+    <meta
+      property="og:description"
+      content="Simule custos de impressão 3D com material, energia, mão de obra e depreciação para gerar orçamento profissional."
+    />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Calculadora de Precificação 3D" />
+    <meta
+      name="twitter:description"
+      content="Simulador de custo para orçamento profissional de impressão 3D."
+    />
+
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "Calculadora de Precificação 3D",
+        "applicationCategory": "BusinessApplication",
+        "operatingSystem": "Web",
+        "inLanguage": "pt-BR",
+        "description": "Aplicação web para calcular preço de impressão 3D com material, energia, mão de obra, depreciação e margem de lucro.",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "BRL"
+        },
+        "featureList": [
+          "Cálculo de custo de material",
+          "Cálculo de custo de energia",
+          "Cálculo de mão de obra",
+          "Cálculo de depreciação de máquina",
+          "Geração de preço final com margem"
+        ]
+      }
+    </script>
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -75,6 +130,7 @@
       }
 
       input[type="number"] {
+        appearance: textfield;
         -moz-appearance: textfield;
       }
 
