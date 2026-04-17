@@ -209,13 +209,18 @@
         }
 
         .layout-shell.calculated {
-          grid-template-columns: 1.25fr 0.85fr;
+          grid-template-columns: 0.85fr 1.25fr;
           justify-items: stretch;
         }
 
         .layout-shell.calculated .main-column {
           max-width: 100%;
           transform: translateX(0);
+          order: 2;
+        }
+
+        .layout-shell.calculated .summary-column {
+          order: 1;
         }
       }
 
@@ -255,7 +260,7 @@
       @keyframes slideInRight {
         from {
           opacity: 0;
-          transform: translateX(34px) scale(0.98);
+          transform: translateX(-34px) scale(0.98);
         }
         to {
           opacity: 1;
