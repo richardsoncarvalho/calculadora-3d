@@ -90,33 +90,156 @@
         box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
       }
 
-      .collapse-item {
+      .accordion-content {
         max-height: 0;
         overflow: hidden;
-        transition: max-height 0.3s ease-out;
+        opacity: 0;
+        transition:
+          max-height 0.35s ease,
+          opacity 0.25s ease;
       }
 
-      .collapse-item.open {
-        max-height: 1000px;
-        transition: max-height 0.3s ease-in;
+      .accordion-content.open {
+        max-height: 1600px;
+        opacity: 1;
       }
 
-      .collapse-toggle::after {
+      .accordion-toggle::after {
         content: "▼";
         transition: transform 0.3s;
         display: inline-block;
         margin-left: 0.5rem;
       }
 
-      .collapse-toggle.collapsed::after {
+      .accordion-toggle.collapsed::after {
         transform: rotate(-90deg);
+      }
+
+      .fade-in-down {
+        animation: fadeInDown 700ms ease both;
+      }
+
+      .summary-card {
+        opacity: 0;
+        transform: translateX(34px) scale(0.98);
+        pointer-events: none;
+      }
+
+      .layout-shell {
+        display: grid;
+        gap: 1.5rem;
+      }
+
+      .main-column {
+        width: 100%;
+        transition:
+          max-width 0.45s ease,
+          transform 0.45s ease;
+      }
+
+      .summary-column {
+        transition: opacity 0.45s ease;
+      }
+
+      @media (min-width: 1024px) {
+        .layout-shell {
+          grid-template-columns: minmax(0, 1fr);
+          justify-items: center;
+          align-items: start;
+        }
+
+        .layout-shell .main-column {
+          max-width: 840px;
+        }
+
+        .layout-shell.calculated {
+          grid-template-columns: 1.25fr 0.85fr;
+          justify-items: stretch;
+        }
+
+        .layout-shell.calculated .main-column {
+          max-width: 100%;
+          transform: translateX(0);
+        }
+      }
+
+      .summary-card.is-visible {
+        animation: slideInRight 560ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+        pointer-events: auto;
+      }
+
+      .price-glow {
+        animation: glowPulse 900ms ease;
+      }
+
+      .pulse-cta {
+        animation: pulseButton 1700ms ease-in-out infinite;
+      }
+
+      .spinner {
+        width: 1.1rem;
+        height: 1.1rem;
+        border: 2px solid rgba(255, 255, 255, 0.2);
+        border-top-color: rgba(255, 255, 255, 0.9);
+        border-radius: 50%;
+        animation: spin 620ms linear infinite;
+      }
+
+      @keyframes fadeInDown {
+        from {
+          opacity: 0;
+          transform: translateY(-16px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @keyframes slideInRight {
+        from {
+          opacity: 0;
+          transform: translateX(34px) scale(0.98);
+        }
+        to {
+          opacity: 1;
+          transform: translateX(0) scale(1);
+        }
+      }
+
+      @keyframes glowPulse {
+        0% {
+          box-shadow: 0 0 0 rgba(52, 211, 153, 0);
+        }
+        40% {
+          box-shadow: 0 0 30px rgba(52, 211, 153, 0.35);
+        }
+        100% {
+          box-shadow: 0 0 0 rgba(52, 211, 153, 0);
+        }
+      }
+
+      @keyframes pulseButton {
+        0%,
+        100% {
+          box-shadow: 0 0 0 0 rgba(34, 211, 238, 0.26);
+        }
+        50% {
+          box-shadow: 0 0 0 12px rgba(34, 211, 238, 0);
+        }
+      }
+
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
       }
     </style>
   </head>
 
   <body class="min-h-screen font-sans text-slate-100 antialiased">
     <main class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 lg:py-12">
-      <header class="mb-8 animate-rise sm:mb-10">
+      <header class="mb-8 fade-in-down sm:mb-10">
         <p
           class="mb-3 inline-flex items-center rounded-full border border-cyan-400/30 bg-cyan-500/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-cyan-300"
         >
@@ -133,281 +256,301 @@
         </p>
       </header>
 
-      <section class="grid gap-6 lg:grid-cols-[1.25fr_0.85fr]">
-        <form id="calculator-form" class="grid gap-4 sm:grid-cols-2">
-          <!-- CAMPOS PRINCIPAIS - Destaque máximo no topo -->
-          <article
-            class="rounded-2xl border-2 border-orange-400/60 bg-orange-500/10 p-6 shadow-neon backdrop-blur-sm animate-rise sm:col-span-2"
-          >
-            <h2
-              class="mb-5 text-base font-semibold uppercase tracking-[0.16em] text-orange-200"
+      <section id="layout-shell" class="layout-shell">
+        <div class="main-column space-y-5">
+          <form id="calculator-form" class="space-y-5">
+            <article
+              class="rounded-3xl border border-cyan-400/25 bg-panel/85 p-6 shadow-neon backdrop-blur-sm animate-rise"
             >
-              ⚡ Campos Principais (Muda cada impressão)
-            </h2>
-            <div class="grid gap-4 sm:grid-cols-2">
-              <label class="block">
-                <span class="mb-2 block text-xs font-medium text-orange-100"
-                  >⏱️ Tempo de impressão (horas)</span
-                >
-                <input
-                  data-field="tempoHoras"
-                  data-editable="true"
-                  type="number"
-                  min="0"
-                  step="0.1"
-                  value="4.5"
-                  class="w-full rounded-xl border-2 border-blue-500/60 bg-blue-950/50 px-4 py-3 text-base font-semibold text-blue-100 outline-none transition focus:border-blue-400"
-                />
-              </label>
-              <label class="block">
-                <span class="mb-2 block text-xs font-medium text-orange-100"
-                  >⚖️ Peso da peça final (g)</span
-                >
-                <input
-                  data-field="pesoPeca"
-                  data-editable="true"
-                  type="number"
-                  min="0"
-                  step="0.1"
-                  value="75"
-                  class="w-full rounded-xl border-2 border-blue-500/60 bg-blue-950/50 px-4 py-3 text-base font-semibold text-blue-100 outline-none transition focus:border-blue-400"
-                />
-              </label>
-            </div>
-          </article>
-
-          <!-- Material -->
-          <article
-            class="rounded-2xl border border-slate-700/60 bg-panel/80 p-5 shadow-neon backdrop-blur-sm animate-rise"
-            style="animation-delay: 80ms"
-          >
-            <h2
-              class="mb-4 text-sm font-semibold uppercase tracking-[0.16em] text-cyan-300"
-            >
-              📦 Material
-            </h2>
-            <div class="space-y-3">
-              <label class="block">
-                <span class="mb-1 block text-xs font-medium text-slate-300"
-                  >Preço do rolo (R$)</span
-                >
-                <input
-                  data-field="precoRolo"
-                  data-editable="true"
-                  type="number"
-                  min="0"
-                  step="0.01"
-                  value="120"
-                  class="w-full rounded-xl border border-slate-600 bg-slate-900/70 px-3 py-2 text-sm text-slate-100 outline-none ring-0 transition focus:border-cyan-400"
-                />
-              </label>
-              <label class="block">
-                <span class="mb-1 block text-xs font-medium text-slate-300"
-                  >Peso do rolo (g)</span
-                >
-                <input
-                  data-field="pesoRolo"
-                  data-editable="true"
-                  type="number"
-                  min="1"
-                  step="1"
-                  value="1000"
-                  class="w-full rounded-xl border border-slate-600 bg-slate-900/70 px-3 py-2 text-sm text-slate-100 outline-none ring-0 transition focus:border-cyan-400"
-                />
-              </label>
-            </div>
-          </article>
-
-          <!-- Operação -->
-          <article
-            class="rounded-2xl border border-slate-700/60 bg-panel/80 p-5 shadow-neon backdrop-blur-sm animate-rise"
-            style="animation-delay: 120ms"
-          >
-            <h2
-              class="mb-4 text-sm font-semibold uppercase tracking-[0.16em] text-cyan-300"
-            >
-              👤 Operação
-            </h2>
-            <div class="space-y-3">
-              <label class="block">
-                <span class="mb-1 block text-xs font-medium text-slate-300"
-                  >Valor da sua hora (R$)</span
-                >
-                <input
-                  data-field="valorHora"
-                  data-editable="true"
-                  type="number"
-                  min="0"
-                  step="0.01"
-                  value="45"
-                  class="w-full rounded-xl border border-slate-600 bg-slate-900/70 px-3 py-2 text-sm text-slate-100 outline-none ring-0 transition focus:border-cyan-400"
-                />
-              </label>
-              <label class="block">
-                <span class="mb-1 block text-xs font-medium text-slate-300"
-                  >Tempo setup/pós-processo (min)</span
-                >
-                <input
-                  data-field="tempoSetupMin"
-                  data-editable="true"
-                  type="number"
-                  min="0"
-                  step="1"
-                  value="35"
-                  class="w-full rounded-xl border border-slate-600 bg-slate-900/70 px-3 py-2 text-sm text-slate-100 outline-none ring-0 transition focus:border-cyan-400"
-                />
-              </label>
-            </div>
-          </article>
-
-          <!-- Negócio -->
-          <article
-            class="rounded-2xl border border-slate-700/60 bg-panel/80 p-5 shadow-neon backdrop-blur-sm animate-rise"
-            style="animation-delay: 160ms"
-          >
-            <h2
-              class="mb-4 text-sm font-semibold uppercase tracking-[0.16em] text-cyan-300"
-            >
-              💰 Negócio
-            </h2>
-            <div class="space-y-3">
-              <label class="block">
-                <span class="mb-1 block text-xs font-medium text-slate-300"
-                  >Taxa de falha/segurança (%)</span
-                >
-                <input
-                  data-field="taxaFalha"
-                  data-editable="true"
-                  type="number"
-                  min="0"
-                  step="0.1"
-                  value="12"
-                  class="w-full rounded-xl border border-slate-600 bg-slate-900/70 px-3 py-2 text-sm text-slate-100 outline-none ring-0 transition focus:border-cyan-400"
-                />
-              </label>
-              <label class="block">
-                <span class="mb-1 block text-xs font-medium text-slate-300"
-                  >Margem de lucro desejada (%)</span
-                >
-                <input
-                  data-field="margemLucro"
-                  data-editable="true"
-                  type="number"
-                  min="0"
-                  step="0.1"
-                  value="30"
-                  class="w-full rounded-xl border border-slate-600 bg-slate-900/70 px-3 py-2 text-sm text-slate-100 outline-none ring-0 transition focus:border-cyan-400"
-                />
-              </label>
-            </div>
-          </article>
-
-          <!-- ADVANCED SETTINGS (Colapsável) -->
-          <article
-            class="rounded-2xl border border-slate-700/60 bg-panel/80 p-5 shadow-neon backdrop-blur-sm animate-rise sm:col-span-2"
-            style="animation-delay: 200ms"
-          >
-            <button
-              id="advanced-toggle"
-              type="button"
-              class="collapse-toggle collapsed mb-4 flex w-full items-center text-sm font-semibold uppercase tracking-[0.16em] text-slate-300 transition hover:text-slate-100"
-            >
-              ⚙️ Advanced Settings (Máquina &amp; Energia)
-            </button>
-
-            <div id="advanced-content" class="collapse-item">
-              <div class="grid gap-4 pt-4 sm:grid-cols-2">
-                <!-- Energia -->
-                <div class="sm:col-span-2">
-                  <h3
-                    class="mb-3 text-xs font-semibold uppercase tracking-[0.16em] text-cyan-200"
+              <h2
+                class="mb-5 text-base font-semibold uppercase tracking-[0.14em] text-cyan-200"
+              >
+                Card Principal
+              </h2>
+              <div class="grid gap-4 sm:grid-cols-2">
+                <label class="block">
+                  <span class="mb-2 block text-xs font-medium text-cyan-100"
+                    >⏱️ Tempo de Impressão (horas)</span
                   >
-                    ⚡ Energia
-                  </h3>
-                  <div class="grid gap-3 sm:grid-cols-2">
-                    <label class="block">
-                      <span
-                        class="mb-1 block text-xs font-medium text-slate-300"
-                        >Consumo da impressora (W)</span
-                      >
-                      <input
-                        data-field="potenciaW"
-                        data-editable="true"
-                        type="number"
-                        min="0"
-                        step="1"
-                        value="220"
-                        class="w-full rounded-xl border border-slate-600 bg-slate-900/70 px-3 py-2 text-sm text-slate-100 outline-none ring-0 transition focus:border-cyan-400"
-                      />
-                    </label>
-                    <label class="block">
-                      <span
-                        class="mb-1 block text-xs font-medium text-slate-300"
-                        >Valor do kWh (R$)</span
-                      >
-                      <input
-                        data-field="valorKwh"
-                        data-editable="true"
-                        type="number"
-                        min="0"
-                        step="0.01"
-                        value="0.82"
-                        class="w-full rounded-xl border border-slate-600 bg-slate-900/70 px-3 py-2 text-sm text-slate-100 outline-none ring-0 transition focus:border-cyan-400"
-                      />
-                    </label>
+                  <input
+                    data-field="tempoHoras"
+                    data-editable="true"
+                    type="number"
+                    min="0"
+                    step="0.1"
+                    value="4.5"
+                    class="w-full rounded-2xl border-2 border-blue-400/70 bg-blue-950/55 px-4 py-4 text-xl font-semibold text-blue-100 outline-none transition focus:border-blue-300"
+                  />
+                </label>
+                <label class="block">
+                  <span class="mb-2 block text-xs font-medium text-cyan-100"
+                    >⚖️ Peso da Peça Final (g)</span
+                  >
+                  <input
+                    data-field="pesoPeca"
+                    data-editable="true"
+                    type="number"
+                    min="0"
+                    step="0.1"
+                    value="75"
+                    class="w-full rounded-2xl border-2 border-blue-400/70 bg-blue-950/55 px-4 py-4 text-xl font-semibold text-blue-100 outline-none transition focus:border-blue-300"
+                  />
+                </label>
+              </div>
+
+              <button
+                id="calculate-button"
+                type="button"
+                class="pulse-cta mt-6 inline-flex w-full items-center justify-center gap-3 rounded-2xl border border-cyan-300/45 bg-gradient-to-r from-cyan-500/35 via-sky-500/30 to-emerald-500/30 px-5 py-4 text-base font-semibold text-cyan-100 transition hover:from-cyan-500/45 hover:to-emerald-500/40 focus:outline-none focus:ring-2 focus:ring-cyan-300"
+              >
+                <span
+                  id="calculate-spinner"
+                  class="spinner hidden"
+                  aria-hidden="true"
+                ></span>
+                <span id="calculate-label"
+                  >Calcular Orçamento Profissional ✨</span
+                >
+              </button>
+              <p
+                id="primary-feedback"
+                class="mt-3 min-h-[1.25rem] text-xs text-rose-300"
+              ></p>
+            </article>
+
+            <article
+              class="rounded-2xl border border-slate-700/60 bg-panel/80 p-5 shadow-neon backdrop-blur-sm animate-rise"
+              style="animation-delay: 120ms"
+            >
+              <button
+                id="advanced-toggle"
+                type="button"
+                class="accordion-toggle collapsed flex w-full items-center text-sm font-semibold uppercase tracking-[0.12em] text-slate-200 transition hover:text-slate-50"
+              >
+                🔧 Ajustar Custos de Oficina (Configurações Salvas)
+              </button>
+
+              <div id="advanced-content" class="accordion-content">
+                <div class="mt-4 grid gap-4 sm:grid-cols-2">
+                  <div
+                    class="rounded-xl border border-slate-700/80 bg-slate-900/40 p-4"
+                  >
+                    <h3
+                      class="mb-3 text-xs font-semibold uppercase tracking-[0.12em] text-cyan-200"
+                    >
+                      Material
+                    </h3>
+                    <div class="space-y-3">
+                      <label class="block">
+                        <span
+                          class="mb-1 block text-xs font-medium text-slate-300"
+                          >Preço do rolo (R$)</span
+                        >
+                        <input
+                          data-field="precoRolo"
+                          data-editable="true"
+                          type="number"
+                          min="0"
+                          step="0.01"
+                          value="120"
+                          class="w-full rounded-xl border border-slate-600 bg-slate-900/70 px-3 py-2 text-sm text-slate-100 outline-none transition focus:border-cyan-400"
+                        />
+                      </label>
+                      <label class="block">
+                        <span
+                          class="mb-1 block text-xs font-medium text-slate-300"
+                          >Peso do rolo (g)</span
+                        >
+                        <input
+                          data-field="pesoRolo"
+                          data-editable="true"
+                          type="number"
+                          min="1"
+                          step="1"
+                          value="1000"
+                          class="w-full rounded-xl border border-slate-600 bg-slate-900/70 px-3 py-2 text-sm text-slate-100 outline-none transition focus:border-cyan-400"
+                        />
+                      </label>
+                    </div>
                   </div>
-                </div>
 
-                <!-- Depreciação -->
-                <div class="sm:col-span-2">
-                  <h3
-                    class="mb-3 text-xs font-semibold uppercase tracking-[0.16em] text-cyan-200"
+                  <div
+                    class="rounded-xl border border-slate-700/80 bg-slate-900/40 p-4"
                   >
-                    🔧 Depreciação da Máquina
-                  </h3>
-                  <div class="grid gap-3 sm:grid-cols-2">
-                    <label class="block">
-                      <span
-                        class="mb-1 block text-xs font-medium text-slate-300"
-                        >Valor da máquina (R$)</span
-                      >
-                      <input
-                        data-field="valorMaquina"
-                        data-editable="true"
-                        type="number"
-                        min="0"
-                        step="0.01"
-                        value="2300"
-                        class="w-full rounded-xl border border-slate-600 bg-slate-900/70 px-3 py-2 text-sm text-slate-100 outline-none ring-0 transition focus:border-cyan-400"
-                      />
-                    </label>
-                    <label class="block">
-                      <span
-                        class="mb-1 block text-xs font-medium text-slate-300"
-                        >Vida útil da máquina (horas)</span
-                      >
-                      <input
-                        data-field="vidaUtilHoras"
-                        data-editable="true"
-                        type="number"
-                        min="1"
-                        step="1"
-                        value="3000"
-                        class="w-full rounded-xl border border-slate-600 bg-slate-900/70 px-3 py-2 text-sm text-slate-100 outline-none ring-0 transition focus:border-cyan-400"
-                      />
-                    </label>
+                    <h3
+                      class="mb-3 text-xs font-semibold uppercase tracking-[0.12em] text-cyan-200"
+                    >
+                      Operação
+                    </h3>
+                    <div class="space-y-3">
+                      <label class="block">
+                        <span
+                          class="mb-1 block text-xs font-medium text-slate-300"
+                          >Valor da sua hora (R$)</span
+                        >
+                        <input
+                          data-field="valorHora"
+                          data-editable="true"
+                          type="number"
+                          min="0"
+                          step="0.01"
+                          value="45"
+                          class="w-full rounded-xl border border-slate-600 bg-slate-900/70 px-3 py-2 text-sm text-slate-100 outline-none transition focus:border-cyan-400"
+                        />
+                      </label>
+                      <label class="block">
+                        <span
+                          class="mb-1 block text-xs font-medium text-slate-300"
+                          >Tempo setup/pós-processo (min)</span
+                        >
+                        <input
+                          data-field="tempoSetupMin"
+                          data-editable="true"
+                          type="number"
+                          min="0"
+                          step="1"
+                          value="35"
+                          class="w-full rounded-xl border border-slate-600 bg-slate-900/70 px-3 py-2 text-sm text-slate-100 outline-none transition focus:border-cyan-400"
+                        />
+                      </label>
+                    </div>
+                  </div>
+
+                  <div
+                    class="rounded-xl border border-slate-700/80 bg-slate-900/40 p-4"
+                  >
+                    <h3
+                      class="mb-3 text-xs font-semibold uppercase tracking-[0.12em] text-cyan-200"
+                    >
+                      Negócio
+                    </h3>
+                    <div class="space-y-3">
+                      <label class="block">
+                        <span
+                          class="mb-1 block text-xs font-medium text-slate-300"
+                          >Taxa de falha/segurança (%)</span
+                        >
+                        <input
+                          data-field="taxaFalha"
+                          data-editable="true"
+                          type="number"
+                          min="0"
+                          step="0.1"
+                          value="12"
+                          class="w-full rounded-xl border border-slate-600 bg-slate-900/70 px-3 py-2 text-sm text-slate-100 outline-none transition focus:border-cyan-400"
+                        />
+                      </label>
+                      <label class="block">
+                        <span
+                          class="mb-1 block text-xs font-medium text-slate-300"
+                          >Margem de lucro desejada (%)</span
+                        >
+                        <input
+                          data-field="margemLucro"
+                          data-editable="true"
+                          type="number"
+                          min="0"
+                          step="0.1"
+                          value="30"
+                          class="w-full rounded-xl border border-slate-600 bg-slate-900/70 px-3 py-2 text-sm text-slate-100 outline-none transition focus:border-cyan-400"
+                        />
+                      </label>
+                    </div>
+                  </div>
+
+                  <div
+                    class="rounded-xl border border-slate-700/80 bg-slate-900/40 p-4"
+                  >
+                    <h3
+                      class="mb-3 text-xs font-semibold uppercase tracking-[0.12em] text-cyan-200"
+                    >
+                      Energia
+                    </h3>
+                    <div class="space-y-3">
+                      <label class="block">
+                        <span
+                          class="mb-1 block text-xs font-medium text-slate-300"
+                          >Consumo da impressora (W)</span
+                        >
+                        <input
+                          data-field="potenciaW"
+                          data-editable="true"
+                          type="number"
+                          min="0"
+                          step="1"
+                          value="220"
+                          class="w-full rounded-xl border border-slate-600 bg-slate-900/70 px-3 py-2 text-sm text-slate-100 outline-none transition focus:border-cyan-400"
+                        />
+                      </label>
+                      <label class="block">
+                        <span
+                          class="mb-1 block text-xs font-medium text-slate-300"
+                          >Valor do kWh (R$)</span
+                        >
+                        <input
+                          data-field="valorKwh"
+                          data-editable="true"
+                          type="number"
+                          min="0"
+                          step="0.01"
+                          value="0.82"
+                          class="w-full rounded-xl border border-slate-600 bg-slate-900/70 px-3 py-2 text-sm text-slate-100 outline-none transition focus:border-cyan-400"
+                        />
+                      </label>
+                    </div>
+                  </div>
+
+                  <div
+                    class="rounded-xl border border-slate-700/80 bg-slate-900/40 p-4 sm:col-span-2"
+                  >
+                    <h3
+                      class="mb-3 text-xs font-semibold uppercase tracking-[0.12em] text-cyan-200"
+                    >
+                      Depreciação de Máquina
+                    </h3>
+                    <div class="grid gap-3 sm:grid-cols-2">
+                      <label class="block">
+                        <span
+                          class="mb-1 block text-xs font-medium text-slate-300"
+                          >Valor da máquina (R$)</span
+                        >
+                        <input
+                          data-field="valorMaquina"
+                          data-editable="true"
+                          type="number"
+                          min="0"
+                          step="0.01"
+                          value="2300"
+                          class="w-full rounded-xl border border-slate-600 bg-slate-900/70 px-3 py-2 text-sm text-slate-100 outline-none transition focus:border-cyan-400"
+                        />
+                      </label>
+                      <label class="block">
+                        <span
+                          class="mb-1 block text-xs font-medium text-slate-300"
+                          >Vida útil da máquina (horas)</span
+                        >
+                        <input
+                          data-field="vidaUtilHoras"
+                          data-editable="true"
+                          type="number"
+                          min="1"
+                          step="1"
+                          value="3000"
+                          class="w-full rounded-xl border border-slate-600 bg-slate-900/70 px-3 py-2 text-sm text-slate-100 outline-none transition focus:border-cyan-400"
+                        />
+                      </label>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          </article>
-        </form>
+            </article>
+          </form>
+        </div>
 
-        <!-- RESUMO DO ORÇAMENTO -->
-        <aside class="lg:sticky lg:top-8 lg:self-start">
+        <aside class="summary-column lg:sticky lg:top-8 lg:self-start">
           <section
-            class="rounded-2xl border border-cyan-500/30 bg-panelSoft/90 p-6 shadow-neon backdrop-blur animate-rise"
-            style="animation-delay: 240ms"
+            id="summary-card"
+            class="summary-card rounded-2xl border border-cyan-500/30 bg-panelSoft/90 p-6 shadow-neon backdrop-blur"
           >
             <h2 class="text-lg font-semibold text-cyan-200">
               Resumo do Orçamento
@@ -450,6 +593,7 @@
             </div>
 
             <div
+              id="price-card"
               class="mt-5 rounded-xl border border-emerald-400/30 bg-emerald-500/10 px-4 py-3"
             >
               <p class="text-xs uppercase tracking-[0.12em] text-emerald-200">
@@ -482,10 +626,35 @@
                 type="button"
                 class="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-emerald-400/40 bg-emerald-500/15 px-4 py-3 text-sm font-semibold text-emerald-200 transition hover:border-emerald-300 hover:bg-emerald-500/25 focus:outline-none focus:ring-2 focus:ring-emerald-400"
               >
-                <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
-                  <path
-                    d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.272-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.67-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.076 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421-7.403h-.006c-1.182 0-2.343-.355-3.396-1.025-1.02-.637-1.905-1.537-2.596-2.652C5.119 2.357 4.757.849 4.757 1.908c0 1.33.315 2.591.917 3.764.629 1.255 1.539 2.368 2.652 3.195 1.12.822 2.399 1.306 3.73 1.306 1.298 0 2.52-.42 3.58-1.254 1.022-.786 1.817-1.839 2.317-3.059.354-.864.542-1.76.542-2.666 0-1.414-.366-2.766-1.069-3.967-.7-1.188-1.682-2.204-2.877-2.88-1.19-.672-2.526-1.011-3.962-1.011-1.411 0-2.753.334-3.961.989-1.194.65-2.181 1.633-2.88 2.82-.696 1.182-1.047 2.488-1.047 3.867 0 1.397.367 2.741 1.086 3.93.728 1.207 1.756 2.246 3.023 2.953 1.267.707 2.716 1.063 4.287 1.063z"
-                  />
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  xmlns:xlink="http://www.w3.org/1999/xlink"
+                  width="24px"
+                  height="24px"
+                  viewBox="0 0 48 48"
+                  version="1.1"
+                >
+                  <title>Whatsapp-color</title>
+                  <desc>Created with Sketch.</desc>
+                  <defs></defs>
+                  <g
+                    id="Icons"
+                    stroke="none"
+                    stroke-width="1"
+                    fill="none"
+                    fill-rule="evenodd"
+                  >
+                    <g
+                      id="Color-"
+                      transform="translate(-700.000000, -360.000000)"
+                      fill="#67C15E"
+                    >
+                      <path
+                        d="M723.993033,360 C710.762252,360 700,370.765287 700,383.999801 C700,389.248451 701.692661,394.116025 704.570026,398.066947 L701.579605,406.983798 L710.804449,404.035539 C714.598605,406.546975 719.126434,408 724.006967,408 C737.237748,408 748,397.234315 748,384.000199 C748,370.765685 737.237748,360.000398 724.006967,360.000398 L723.993033,360.000398 L723.993033,360 Z M717.29285,372.190836 C716.827488,371.07628 716.474784,371.034071 715.769774,371.005401 C715.529728,370.991464 715.262214,370.977527 714.96564,370.977527 C714.04845,370.977527 713.089462,371.245514 712.511043,371.838033 C711.806033,372.557577 710.056843,374.23638 710.056843,377.679202 C710.056843,381.122023 712.567571,384.451756 712.905944,384.917648 C713.258648,385.382743 717.800808,392.55031 724.853297,395.471492 C730.368379,397.757149 732.00491,397.545307 733.260074,397.27732 C735.093658,396.882308 737.393002,395.527239 737.971421,393.891043 C738.54984,392.25405 738.54984,390.857171 738.380255,390.560912 C738.211068,390.264652 737.745308,390.095816 737.040298,389.742615 C736.335288,389.389811 732.90737,387.696673 732.25849,387.470894 C731.623543,387.231179 731.017259,387.315995 730.537963,387.99333 C729.860819,388.938653 729.198006,389.89831 728.661785,390.476494 C728.238619,390.928051 727.547144,390.984595 726.969123,390.744481 C726.193254,390.420348 724.021298,389.657798 721.340985,387.273388 C719.267356,385.42535 717.856938,383.125756 717.448104,382.434484 C717.038871,381.729275 717.405907,381.319529 717.729948,380.938852 C718.082653,380.501232 718.421026,380.191036 718.77373,379.781688 C719.126434,379.372738 719.323884,379.160897 719.549599,378.681068 C719.789645,378.215575 719.62006,377.735746 719.450874,377.382942 C719.281687,377.030139 717.871269,373.587317 717.29285,372.190836 Z"
+                        id="Whatsapp"
+                      ></path>
+                    </g>
+                  </g>
                 </svg>
                 Enviar WhatsApp
               </button>
@@ -506,15 +675,28 @@
       });
 
       const form = document.getElementById("calculator-form");
+      const calculateButton = document.getElementById("calculate-button");
+      const calculateLabel = document.getElementById("calculate-label");
+      const calculateSpinner = document.getElementById("calculate-spinner");
+      const primaryFeedback = document.getElementById("primary-feedback");
       const advancedToggle = document.getElementById("advanced-toggle");
       const advancedContent = document.getElementById("advanced-content");
+      const summaryCard = document.getElementById("summary-card");
+      const layoutShell = document.getElementById("layout-shell");
+      const priceCard = document.getElementById("price-card");
+      const primaryFields = [
+        document.querySelector('[data-field="tempoHoras"]'),
+        document.querySelector('[data-field="pesoPeca"]'),
+      ];
       const fields = Array.from(form.querySelectorAll("input[data-field]"));
+      let summaryVisible = false;
 
       // Toggle Advanced Settings
       advancedToggle.addEventListener("click", (e) => {
         e.preventDefault();
-        advancedToggle.classList.toggle("collapsed");
-        advancedContent.classList.toggle("open");
+        const willOpen = !advancedContent.classList.contains("open");
+        advancedToggle.classList.toggle("collapsed", !willOpen);
+        advancedContent.classList.toggle("open", willOpen);
       });
 
       const output = {
@@ -559,6 +741,8 @@
         const parsed = Number(value);
         return Number.isFinite(parsed) && parsed >= 0 ? parsed : 0;
       };
+
+      const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
       const getValues = () => {
         const values = {};
@@ -623,6 +807,20 @@
         ].join("\n");
       };
 
+      const animateCurrency = (element, target) => {
+        const duration = 640;
+        const start = performance.now();
+
+        const tick = (now) => {
+          const progress = Math.min((now - start) / duration, 1);
+          const eased = 1 - Math.pow(1 - progress, 3);
+          element.textContent = currency.format(target * eased);
+          if (progress < 1) requestAnimationFrame(tick);
+        };
+
+        requestAnimationFrame(tick);
+      };
+
       const render = () => {
         const values = getValues();
         const cost = calculate(values);
@@ -634,7 +832,14 @@
         output.subtotal.textContent = `Subtotal técnico: ${currency.format(cost.subtotal)}`;
         output.falha.textContent = `Taxa de segurança aplicada: ${cost.taxaFalha.toFixed(1)}%`;
         output.lucro.textContent = `Margem de lucro aplicada: ${cost.margemLucro.toFixed(1)}%`;
-        output.total.textContent = currency.format(cost.total);
+        if (summaryVisible) {
+          animateCurrency(output.total, cost.total);
+          priceCard.classList.remove("price-glow");
+          void priceCard.offsetWidth;
+          priceCard.classList.add("price-glow");
+        } else {
+          output.total.textContent = currency.format(cost.total);
+        }
 
         const summary = createSummaryText(cost);
         copyButton.dataset.summary = summary;
@@ -643,9 +848,39 @@
 
       fields.forEach((field) => {
         field.addEventListener("input", () => {
-          render();
           saveToStorage();
+          if (summaryVisible) {
+            render();
+          }
         });
+      });
+
+      calculateButton.addEventListener("click", async () => {
+        const values = getValues();
+        if (values.tempoHoras <= 0 || values.pesoPeca <= 0) {
+          primaryFeedback.textContent =
+            "Preencha Tempo e Peso com valores maiores que zero para calcular.";
+          return;
+        }
+
+        primaryFeedback.textContent = "";
+        calculateButton.disabled = true;
+        calculateLabel.textContent = "Calculando...";
+        calculateSpinner.classList.remove("hidden");
+
+        await wait(500);
+
+        calculateSpinner.classList.add("hidden");
+        calculateLabel.textContent = "Calcular Orçamento Profissional ✨";
+        calculateButton.disabled = false;
+
+        if (!summaryVisible) {
+          layoutShell.classList.add("calculated");
+          summaryCard.classList.add("is-visible");
+          summaryVisible = true;
+        }
+
+        render();
       });
 
       copyButton.addEventListener("click", async () => {
@@ -673,17 +908,34 @@
       });
 
       loadFromStorage();
-      // Expandir Advanced Settings se houver dados carregados
-      const stored = localStorage.getItem(STORAGE_KEY);
-      if (stored) {
+      advancedToggle.classList.add("collapsed");
+      advancedContent.classList.remove("open");
+      summaryVisible = false;
+      layoutShell.classList.remove("calculated");
+      summaryCard.classList.remove("is-visible");
+
+      const hasStoredAdvanced = () => {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return false;
         try {
-          const values = JSON.parse(stored);
-          if (values.valorMaquina || values.potenciaW) {
-            advancedToggle.classList.remove("collapsed");
-            advancedContent.classList.add("open");
-          }
-        } catch (e) {}
+          const v = JSON.parse(raw);
+          return Boolean(
+            v.precoRolo ||
+            v.valorHora ||
+            v.taxaFalha ||
+            v.valorKwh ||
+            v.valorMaquina,
+          );
+        } catch {
+          return false;
+        }
+      };
+
+      if (hasStoredAdvanced()) {
+        advancedToggle.classList.remove("collapsed");
+        advancedContent.classList.add("open");
       }
+
       render();
     </script>
   </body>
